@@ -1,10 +1,30 @@
-# repzo-ultramsg
+# Repzo-Ultramsg Integration
 
-This repository contains code and documentation for integrating Repzo with Ultramsg, a multifunctional API for WhatsApp. This integration allows businesses and developers to enhance their communication capabilities by seamlessly integrating WhatsApp messaging into their accounting systems, CRMs, ERPs, or websites.
+Welcome to the GitHub repository for the Repzo-Ultramsg integration! This integration is designed to facilitate seamless communication between Repzo, a CRM specializing in field management, and Ultramsg, a multifunctional API for WhatsApp. At the moment, our primary feature is sending invoice details from Repzo directly to the client's cellphone via WhatsApp.
 
-Features
+## Features
 
-- Send WhatsApp messages to customers and users.
-- Notify users about important updates or events.
-- Integrate WhatsApp messaging into your existing systems and workflows.
-- Improve customer engagement and communication.
+- **Invoice Notifications**: Automatically send WhatsApp messages to clients containing invoice details issued by Repzo.
+
+## Table of Contents
+
+- [Features](#features)
+- [Contribution](#contribution)
+- [Support and Feedback](#support-and-feedback)
+
+## Contribution
+
+We welcome contributions! If you have a feature request, bug report, or want to improve the integration, please:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Implement your changes.
+4. Submit a pull request.
+
+## Support and Feedback
+
+For any issues, questions, or feedback, please [open an issue on GitHub](https://github.com/your-username/repzo-ultramsg-integration/issues) or contact the maintainers directly.
+
+---
+
+Thanks for your interest in the Repzo-Ultramsg Integration. We hope it streamlines your communication and invoicing process!
