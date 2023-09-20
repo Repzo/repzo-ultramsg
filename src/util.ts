@@ -1,30 +1,23 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
+import { ultraMsgSendData } from "./types";
+import qs from "qs";
 
-interface Data {
-  [key: string]: any;
-}
-
-export const _send = async (body: Data) => {
-  const msgBody = `Dear ${body.clientName}, your total invoice is ${
-    parseInt(body.total) / 1000
-  } ${body.currency}`;
+export const _sendUltraMessage = async (data: ultraMsgSendData) => {
   try {
-    axios
-      .post(
-        `https://api.ultramsg.com/${body.instanceId}/messages/chat?token=${body.token}&to=${body.to}&body=${msgBody}`,
-
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      )
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    var _data = qs.stringify({
+      token: data.token,
+      to: data.to,
+      body: data.body,
+    });
+    var config: AxiosRequestConfig = {
+      method: "post",
+      url: `https://api.ultramsg.com/${data.instanceId}/messages/chat`,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      data: _data,
+    };
+    await axios(config);
   } catch (e) {
     throw e;
   }

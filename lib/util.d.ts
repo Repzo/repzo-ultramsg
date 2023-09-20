@@ -1,5 +1,4 @@
-interface Data {
-  [key: string]: any;
-}
-export declare const _send: (body: Data) => Promise<void>;
-export {};
+import { ultraMsgSendData } from "./types";
+export declare const _sendUltraMessage: (
+  data: ultraMsgSendData
+) => Promise<void>;

@@ -74,4 +74,10 @@ export type FailedDocsReport = {
   doc?: any;
   error_message: any;
 }[];
+export interface ultraMsgSendData {
+  token: string;
+  to: string;
+  instanceId: string;
+  body: string;
+}
 export {};

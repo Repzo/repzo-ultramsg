@@ -15,6 +15,6 @@ export const actionsList: Action[] = [
   {
     action: "message_invoice",
     name: "message invoice",
-    description: "message invoice ..",
+    description: "send message about invoice details to client cellphone.",
   },
 ];
