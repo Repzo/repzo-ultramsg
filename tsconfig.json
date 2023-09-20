@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2018",
+    "lib": ["esnext"],
     "module": "ES6",
     "declaration": true,
     "outDir": "./lib",
@@ -9,7 +10,9 @@
     "esModuleInterop": true,
     "moduleResolution": "Node"
   },
-  "ts-node": { "esm": true },
+  "ts-node": {
+    "esm": true
+  },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "*test*"]
 }
