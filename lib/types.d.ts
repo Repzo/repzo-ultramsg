@@ -32,6 +32,12 @@ export interface Action {
   action: string;
   description: string;
 }
+export type RESPONSE = {
+  isBase64Encoded: boolean;
+  statusCode: number;
+  headers: any;
+  body: string;
+};
 export interface Command {
   command: string;
   description: string;
