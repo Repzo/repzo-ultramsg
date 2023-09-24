@@ -54,6 +54,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       .setStatus("success")
       .setBody(body)
       .commit();
+
     return result;
   } catch (e: any) {
     //@ts-ignore

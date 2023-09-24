@@ -17,7 +17,13 @@ export const _sendUltraMessage = async (data: ultraMsgSendData) => {
       },
       data: _data,
     };
-    await axios(config);
+
+    try {
+      const res = await axios(config);
+      return res.data;
+    } catch (e) {
+      throw e;
+    }
   } catch (e) {
     throw e;
   }
