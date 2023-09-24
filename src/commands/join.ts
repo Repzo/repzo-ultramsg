@@ -26,7 +26,7 @@ export const join = async (commandEvent: CommandEvent) => {
           action: "message_invoice",
           event: "invoice.create",
           join:
-            commandEvent?.app?.formData?.invoices?.createInvoiceHook || false,
+            commandEvent?.app?.formData?.invoices?.messageInvoiceHook || false,
         },
       ],
     };
