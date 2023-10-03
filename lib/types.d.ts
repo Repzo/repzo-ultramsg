@@ -80,4 +80,8 @@ export interface ultraMsgSendData {
   instanceId: string;
   body: string;
 }
+export interface ultraMsgSendDoc extends ultraMsgSendData {
+  document: string;
+  fileName: string;
+}
 export {};

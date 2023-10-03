@@ -28,6 +28,16 @@ export const join = async (commandEvent: CommandEvent) => {
           join:
             commandEvent?.app?.formData?.invoices?.messageInvoiceHook || false,
         },
+        //document_workorder
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "document_workorder",
+          event: "workorder.create",
+          join:
+            commandEvent?.app?.formData?.workorders?.documentWorkorderHook ||
+            false,
+        },
       ],
     };
 

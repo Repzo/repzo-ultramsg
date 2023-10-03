@@ -9,6 +9,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
   const action_sync_id: string = event?.headers?.action_sync_id || uuid();
   const actionLog = new Repzo.ActionLogs(repzo, action_sync_id);
   let body: Service.FullInvoice.InvoiceSchema;
+  let clientPhoneNumber: string = "";
   try {
     await actionLog.load(action_sync_id);
 
@@ -24,25 +25,42 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       throw new Error(`Repzo Ultramsg: Error event body was of a wrong type`);
     }
     let client = await repzo.client.get(body.client_id);
-    if (typeof client.cell_phone !== "string" || !client.cell_phone) {
-      await actionLog
-        .setStatus("fail")
-        .addDetail(
-          `Repzo Ultramsg: Error ${body?.client_name} does not have a cellphone`
-        )
-        .commit();
-      throw `Repzo Ultramsg: Error ${body?.client_name} does not have a cellphone`;
+    if (options.data.invoices.recipientType === "Cell Phone") {
+      if (typeof client.cell_phone !== "string" || !client.cell_phone) {
+        await actionLog
+          .setStatus("fail")
+          .addDetail(
+            `Repzo Ultramsg: Error ${body?.client_name} does not have a cellphone`
+          )
+          .commit();
+        throw `Repzo Ultramsg: Error ${body?.client_name} does not have a cellphone`;
+      } else clientPhoneNumber = client.cell_phone;
+    }
+
+    if (options.data.invoices.recipientType === "Phone") {
+      if (typeof client.phone !== "string" || !client.phone) {
+        await actionLog
+          .setStatus("fail")
+          .addDetail(
+            `Repzo Ultramsg: Error ${body?.client_name} does not have a phone`
+          )
+          .commit();
+        throw `Repzo Ultramsg: Error ${body?.client_name} does not have a phone`;
+      } else clientPhoneNumber = client.phone;
+    }
+    if (clientPhoneNumber.trim() == "") {
+      throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
     await actionLog
       .addDetail(
         `Repzo Ultramsg: Started Sending a Message - ${body?.serial_number?.formatted} `
       )
       .commit();
-    const msgBody = `Dear ${body.client_name}, your total invoice is ${
+    const msgBody = `${options.data.invoices.message} ${
       parseInt(body.total.toString()) / 1000
     } ${body.currency} `;
     const ultramsg_client_body: ultraMsgSendData = {
-      to: client.cell_phone,
+      to: clientPhoneNumber,
       body: msgBody,
       token: options.data.token,
       instanceId: options.data.instanceId,
