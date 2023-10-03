@@ -3,8 +3,8 @@ import { ultraMsgSendData, ultraMsgSendDoc } from "./types";
 import qs from "qs";
 import { Service } from "repzo/src/types";
 import Repzo from "repzo";
-const MAX_RETRIES = 20;
-const RETRY_DELAY_SECONDS = 0.1;
+const MAX_RETRIES = 25;
+
 export const _sendUltraMessage = async (data: ultraMsgSendData) => {
   try {
     var _data = qs.stringify({
@@ -75,10 +75,8 @@ export const _getPrintMedia = async (
     });
     if (workorderPdf.state === "completed") {
       return workorderPdf;
-    } else if (i === MAX_RETRIES - 1) {
-      throw new Error("Invalid media generated after max retries.");
     }
-    await sleep(RETRY_DELAY_SECONDS + i);
+    await sleep(i);
   }
   throw new Error("Failed to fetch media after retries.");
 };
