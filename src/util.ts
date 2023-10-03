@@ -69,7 +69,7 @@ export const _getPrintMedia = async (
   workorderPdfId: string,
   repzo: Repzo
 ): Promise<Service.QuickConvertToPdf.QuickConvertToPdfSchema> => {
-  for (let i = 0; i < MAX_RETRIES; i = i + 5) {
+  for (let i = 0; i <= MAX_RETRIES; i = i + 5) {
     let workorderPdf = await repzo.quickConvertToPdf.get(workorderPdfId, {
       populatedKeys: ["print_media"],
     });
