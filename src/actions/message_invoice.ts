@@ -25,7 +25,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       throw new Error(`Repzo Ultramsg: Error event body was of a wrong type`);
     }
     let client = await repzo.client.get(body.client_id);
-    if (options.data.invoices.recipientType === "Cell Phone") {
+    if (options.data.invoices.messageRecipientType === "Cell Phone") {
       if (typeof client.cell_phone !== "string" || !client.cell_phone) {
         await actionLog
           .setStatus("fail")
@@ -37,7 +37,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.cell_phone;
     }
 
-    if (options.data.invoices.recipientType === "Phone") {
+    if (options.data.invoices.messageRecipientType === "Phone") {
       if (typeof client.phone !== "string" || !client.phone) {
         await actionLog
           .setStatus("fail")

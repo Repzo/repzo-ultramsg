@@ -7,6 +7,6 @@ export declare const _sendUltraMessage: (
 export declare const _sendUltraMsgDoc: (data: ultraMsgSendDoc) => Promise<any>;
 export declare const sleep: (s: number) => Promise<unknown>;
 export declare const _getPrintMedia: (
-  workorderPdfId: string,
+  pdfId: string,
   repzo: Repzo
 ) => Promise<Service.QuickConvertToPdf.QuickConvertToPdfSchema>;

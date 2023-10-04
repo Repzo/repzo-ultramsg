@@ -4,12 +4,13 @@ import { _getPrintMedia, _sendUltraMsgDoc } from "../util.js";
 import { Service } from "repzo/src/types";
 import { v4 as uuid } from "uuid";
 
-export const document_workorder = async (event: EVENT, options: Config) => {
+export const document_invoice = async (event: EVENT, options: Config) => {
   const repzo = new Repzo(options.data?.repzoApiKey, { env: options.env });
   const action_sync_id: string = event?.headers?.action_sync_id || uuid();
   const actionLog = new Repzo.ActionLogs(repzo, action_sync_id);
-  let body: Service.Workorder.WorkorderSchema;
+  let body: Service.FullInvoice.InvoiceSchema;
   let clientPhoneNumber: string = "";
+
   try {
     await actionLog.load(action_sync_id);
 
@@ -25,9 +26,9 @@ export const document_workorder = async (event: EVENT, options: Config) => {
       throw new Error(`Repzo Ultramsg: Error event body was of a wrong type`);
     }
 
-    let client = await repzo.client.get(body.client);
+    let client = await repzo.client.get(body.client_id);
 
-    if (options.data.workorders.recipientType === "Cell Phone") {
+    if (options.data.invoices.documentRecipientType === "Cell Phone") {
       if (typeof client.cell_phone !== "string" || !client.cell_phone) {
         await actionLog
           .setStatus("fail")
@@ -39,7 +40,7 @@ export const document_workorder = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.cell_phone;
     }
 
-    if (options.data.workorders.recipientType === "Phone") {
+    if (options.data.invoices.documentRecipientType === "Phone") {
       if (typeof client.phone !== "string" || !client.phone) {
         await actionLog
           .setStatus("fail")
@@ -50,14 +51,15 @@ export const document_workorder = async (event: EVENT, options: Config) => {
         throw `Repzo Ultramsg: Error ${body?.client_name} does not have a phone`;
       } else clientPhoneNumber = client.phone;
     }
+
     if (clientPhoneNumber.trim() == "") {
       throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
-    let convertWorkorderToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
+    let convertInvoiceToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
     try {
-      convertWorkorderToPdf = await repzo.quickConvertToPdf.create({
+      convertInvoiceToPdf = await repzo.quickConvertToPdf.create({
         document_id: [body._id],
-        document_type: "workorder",
+        document_type: "invoice",
         sync_id: body.sync_id,
       });
     } catch (e) {
@@ -65,35 +67,32 @@ export const document_workorder = async (event: EVENT, options: Config) => {
     }
 
     if (
-      !convertWorkorderToPdf._id ||
-      convertWorkorderToPdf._id.trim() == "" ||
-      convertWorkorderToPdf.state === "failed"
+      !convertInvoiceToPdf._id ||
+      convertInvoiceToPdf._id.trim() == "" ||
+      convertInvoiceToPdf.state === "failed"
     ) {
-      throw `Repzo Ultramsg: Error, failed to convert work order to pdf`;
+      throw `Repzo Ultramsg: Error, failed to convert invoice to pdf`;
     }
-    let workorderPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
+    let invoicePdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
 
     try {
-      workorderPdf = await _getPrintMedia(convertWorkorderToPdf._id, repzo);
+      invoicePdf = await _getPrintMedia(convertInvoiceToPdf._id, repzo);
     } catch (e) {
       throw e;
     }
 
-    if (
-      typeof workorderPdf.print_media !== "string" &&
-      workorderPdf.print_media
-    ) {
+    if (typeof invoicePdf.print_media !== "string" && invoicePdf.print_media) {
       if (
-        !workorderPdf.print_media.publicUrl ||
-        typeof workorderPdf.print_media.publicUrl !== "string"
+        !invoicePdf.print_media.publicUrl ||
+        typeof invoicePdf.print_media.publicUrl !== "string"
       )
-        throw `Repzo Ultramsg: Error,work order document not found `;
+        throw `Repzo Ultramsg: Error,invoice document not found `;
 
       if (
-        !workorderPdf.print_media.file_name ||
-        typeof workorderPdf.print_media.file_name !== "string"
+        !invoicePdf.print_media.file_name ||
+        typeof invoicePdf.print_media.file_name !== "string"
       )
-        throw `Repzo Ultramsg: Error,work order document does not have a file name`;
+        throw `Repzo Ultramsg: Error,invoice document does not have a file name`;
       await actionLog
         .addDetail(
           `Repzo Ultramsg: Started Sending a Document - ${body?.serial_number?.formatted} `
@@ -101,11 +100,11 @@ export const document_workorder = async (event: EVENT, options: Config) => {
         .commit();
       const ultramsg_client_body: ultraMsgSendDoc = {
         to: clientPhoneNumber,
-        body: options.data.workorders.documentCaption,
+        body: options.data.invoices.documentCaption,
         token: options.data.token,
         instanceId: options.data.instanceId,
-        document: workorderPdf.print_media.publicUrl,
-        fileName: workorderPdf.print_media.file_name,
+        document: invoicePdf.print_media.publicUrl,
+        fileName: invoicePdf.print_media.file_name,
       };
 
       await actionLog

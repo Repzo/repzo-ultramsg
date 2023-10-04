@@ -66,15 +66,15 @@ export const sleep = (s: number) => {
 };
 
 export const _getPrintMedia = async (
-  workorderPdfId: string,
+  pdfId: string,
   repzo: Repzo
 ): Promise<Service.QuickConvertToPdf.QuickConvertToPdfSchema> => {
   for (let i = 0; i <= MAX_RETRIES; i = i + 5) {
-    let workorderPdf = await repzo.quickConvertToPdf.get(workorderPdfId, {
+    let pdf = await repzo.quickConvertToPdf.get(pdfId, {
       populatedKeys: ["print_media"],
     });
-    if (workorderPdf.state === "completed") {
-      return workorderPdf;
+    if (pdf.state === "completed") {
+      return pdf;
     }
     await sleep(i);
   }
