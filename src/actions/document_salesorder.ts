@@ -4,11 +4,11 @@ import { _getPrintMedia, _sendUltraMsgDoc } from "../util.js";
 import { Service } from "repzo/src/types";
 import { v4 as uuid } from "uuid";
 
-export const document_invoice = async (event: EVENT, options: Config) => {
+export const document_salesorder = async (event: EVENT, options: Config) => {
   const repzo = new Repzo(options.data?.repzoApiKey, { env: options.env });
   const action_sync_id: string = event?.headers?.action_sync_id || uuid();
   const actionLog = new Repzo.ActionLogs(repzo, action_sync_id);
-  let body: Service.FullInvoice.InvoiceSchema;
+  let body: Service.Proforma.ProformaSchema;
   let clientPhoneNumber: string = "";
 
   try {
@@ -28,7 +28,9 @@ export const document_invoice = async (event: EVENT, options: Config) => {
 
     let client = await repzo.client.get(body.client_id);
 
-    if (options.data.invoices.document.documentRecipientType === "Cell Phone") {
+    if (
+      options.data.salesorders.document.documentRecipientType === "Cell Phone"
+    ) {
       if (typeof client.cell_phone !== "string" || !client.cell_phone) {
         await actionLog
           .setStatus("fail")
@@ -40,7 +42,7 @@ export const document_invoice = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.cell_phone;
     }
 
-    if (options.data.invoices.document.documentRecipientType === "Phone") {
+    if (options.data.salesorders.document.documentRecipientType === "Phone") {
       if (typeof client.phone !== "string" || !client.phone) {
         await actionLog
           .setStatus("fail")
@@ -55,11 +57,11 @@ export const document_invoice = async (event: EVENT, options: Config) => {
     if (clientPhoneNumber.trim() == "") {
       throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
-    let convertInvoiceToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
+    let convertSalesorderToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
     try {
-      convertInvoiceToPdf = await repzo.quickConvertToPdf.create({
+      convertSalesorderToPdf = await repzo.quickConvertToPdf.create({
         document_id: [body._id],
-        document_type: "invoice",
+        document_type: "proforma",
         sync_id: body.sync_id,
       });
     } catch (e) {
@@ -67,32 +69,35 @@ export const document_invoice = async (event: EVENT, options: Config) => {
     }
 
     if (
-      !convertInvoiceToPdf._id ||
-      convertInvoiceToPdf._id.trim() == "" ||
-      convertInvoiceToPdf.state === "failed"
+      !convertSalesorderToPdf._id ||
+      convertSalesorderToPdf._id.trim() == "" ||
+      convertSalesorderToPdf.state === "failed"
     ) {
-      throw `Repzo Ultramsg: Error, failed to convert invoice to pdf`;
+      throw `Repzo Ultramsg: Error, failed to convert sales order to pdf`;
     }
-    let invoicePdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
+    let salesorderPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
 
     try {
-      invoicePdf = await _getPrintMedia(convertInvoiceToPdf._id, repzo);
+      salesorderPdf = await _getPrintMedia(convertSalesorderToPdf._id, repzo);
     } catch (e) {
       throw e;
     }
 
-    if (typeof invoicePdf.print_media !== "string" && invoicePdf.print_media) {
+    if (
+      typeof salesorderPdf.print_media !== "string" &&
+      salesorderPdf.print_media
+    ) {
       if (
-        !invoicePdf.print_media.publicUrl ||
-        typeof invoicePdf.print_media.publicUrl !== "string"
+        !salesorderPdf.print_media.publicUrl ||
+        typeof salesorderPdf.print_media.publicUrl !== "string"
       )
-        throw `Repzo Ultramsg: Error,invoice document not found `;
+        throw `Repzo Ultramsg: Error,sales order document not found `;
 
       if (
-        !invoicePdf.print_media.file_name ||
-        typeof invoicePdf.print_media.file_name !== "string"
+        !salesorderPdf.print_media.file_name ||
+        typeof salesorderPdf.print_media.file_name !== "string"
       )
-        throw `Repzo Ultramsg: Error,invoice document does not have a file name`;
+        throw `Repzo Ultramsg: Error,sales order document does not have a file name`;
       await actionLog
         .addDetail(
           `Repzo Ultramsg: Started Sending a Document - ${body?.serial_number?.formatted} `
@@ -100,11 +105,11 @@ export const document_invoice = async (event: EVENT, options: Config) => {
         .commit();
       const ultramsg_client_body: ultraMsgSendDoc = {
         to: clientPhoneNumber,
-        body: options.data.invoices.document.documentCaption,
+        body: options.data.salesorders.document.documentCaption,
         token: options.data.token,
         instanceId: options.data.instanceId,
-        document: invoicePdf.print_media.publicUrl,
-        fileName: invoicePdf.print_media.file_name,
+        document: salesorderPdf.print_media.publicUrl,
+        fileName: salesorderPdf.print_media.file_name,
       };
 
       await actionLog

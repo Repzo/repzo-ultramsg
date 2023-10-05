@@ -4,14 +4,14 @@ import { _sendUltraMessage } from "../util.js";
 import { Service } from "repzo/src/types";
 import { v4 as uuid } from "uuid";
 
-export const message_invoice = async (event: EVENT, options: Config) => {
+export const message_salesorder = async (event: EVENT, options: Config) => {
   const repzo = new Repzo(options.data?.repzoApiKey, { env: options.env });
   const action_sync_id: string = event?.headers?.action_sync_id || uuid();
   const actionLog = new Repzo.ActionLogs(repzo, action_sync_id);
-  let body: Service.FullInvoice.InvoiceSchema;
+  let body: Service.Proforma.ProformaSchema;
   let clientPhoneNumber: string = "";
   try {
-    // await actionLog.load(action_sync_id);
+    await actionLog.load(action_sync_id);
 
     if (typeof event.body === "string" && event.body.trim() !== "") {
       body = JSON.parse(event.body);
@@ -25,7 +25,10 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       throw new Error(`Repzo Ultramsg: Error event body was of a wrong type`);
     }
     let client = await repzo.client.get(body.client_id);
-    if (options.data.invoices.message.messageRecipientType === "Cell Phone") {
+
+    if (
+      options.data.salesorders.message.messageRecipientType === "Cell Phone"
+    ) {
       if (typeof client.cell_phone !== "string" || !client.cell_phone) {
         await actionLog
           .setStatus("fail")
@@ -37,7 +40,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.cell_phone;
     }
 
-    if (options.data.invoices.message.messageRecipientType === "Phone") {
+    if (options.data.salesorders.message.messageRecipientType === "Phone") {
       if (typeof client.phone !== "string" || !client.phone) {
         await actionLog
           .setStatus("fail")
@@ -56,7 +59,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
         `Repzo Ultramsg: Started Sending a Message - ${body?.serial_number?.formatted} `
       )
       .commit();
-    const msgBody = `${options.data.invoices.message.message} ${
+    const msgBody = `${options.data.salesorders.message.message} ${
       parseInt(body.total.toString()) / 1000
     } ${body.currency} `;
     const ultramsg_client_body: ultraMsgSendData = {
