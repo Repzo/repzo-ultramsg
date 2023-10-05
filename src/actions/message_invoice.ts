@@ -11,7 +11,7 @@ export const message_invoice = async (event: EVENT, options: Config) => {
   let body: Service.FullInvoice.InvoiceSchema;
   let clientPhoneNumber: string = "";
   try {
-    // await actionLog.load(action_sync_id);
+    await actionLog.load(action_sync_id);
 
     if (typeof event.body === "string" && event.body.trim() !== "") {
       body = JSON.parse(event.body);
