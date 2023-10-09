@@ -26,7 +26,8 @@ export const join = async (commandEvent: CommandEvent) => {
           action: "message_invoice",
           event: "invoice.create",
           join:
-            commandEvent?.app?.formData?.invoices?.messageInvoiceHook || false,
+            commandEvent?.app?.formData?.invoices?.message.messageInvoiceHook ||
+            false,
         },
 
         //document invoice
@@ -36,7 +37,8 @@ export const join = async (commandEvent: CommandEvent) => {
           action: "document_invoice",
           event: "invoice.create",
           join:
-            commandEvent?.app?.formData?.invoices?.documentInvoiceHook || false,
+            commandEvent?.app?.formData?.invoices?.document
+              .documentInvoiceHook || false,
         },
 
         //document workorder
@@ -48,6 +50,28 @@ export const join = async (commandEvent: CommandEvent) => {
           join:
             commandEvent?.app?.formData?.workorders?.documentWorkorderHook ||
             false,
+        },
+
+        //document salesorder
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "document_salesorder",
+          event: "salesorder.create",
+          join:
+            commandEvent?.app?.formData?.salesorders?.document
+              .documentSalesorderHook || false,
+        },
+
+        //message salesorder
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "message_salesorder",
+          event: "salesorder.create",
+          join:
+            commandEvent?.app?.formData?.salesorders?.message
+              .messageSalesorderHook || false,
         },
       ],
     };
