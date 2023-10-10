@@ -55,6 +55,12 @@ export const document_salesorder = async (event: EVENT, options: Config) => {
     }
 
     if (clientPhoneNumber.trim() == "") {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(
+          `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`
+        )
+        .commit();
       throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
     let convertSalesorderToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
@@ -65,6 +71,10 @@ export const document_salesorder = async (event: EVENT, options: Config) => {
         sync_id: body.sync_id,
       });
     } catch (e) {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(`Repzo Ultramsg: Error in converting sales order to pdf`)
+        .commit();
       throw e;
     }
 
@@ -80,6 +90,10 @@ export const document_salesorder = async (event: EVENT, options: Config) => {
     try {
       salesorderPdf = await _getPrintMedia(convertSalesorderToPdf._id, repzo);
     } catch (e) {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(`Repzo Ultramsg:  Error, failed to fetch sales order pdf`)
+        .commit();
       throw e;
     }
 

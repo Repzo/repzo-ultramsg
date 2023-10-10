@@ -51,6 +51,12 @@ export const document_workorder = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.phone;
     }
     if (clientPhoneNumber.trim() == "") {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(
+          `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`
+        )
+        .commit();
       throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
     let convertWorkorderToPdf: Service.QuickConvertToPdf.QuickConvertToPdfSchema;
@@ -61,6 +67,10 @@ export const document_workorder = async (event: EVENT, options: Config) => {
         sync_id: body.sync_id,
       });
     } catch (e) {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(`Repzo Ultramsg: Error in converting work order to pdf`)
+        .commit();
       throw e;
     }
 
@@ -76,6 +86,10 @@ export const document_workorder = async (event: EVENT, options: Config) => {
     try {
       workorderPdf = await _getPrintMedia(convertWorkorderToPdf._id, repzo);
     } catch (e) {
+      await actionLog
+        .setStatus("fail")
+        .addDetail(`Repzo Ultramsg:  Error, failed to fetch work order pdf`)
+        .commit();
       throw e;
     }
 
