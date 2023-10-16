@@ -10,7 +10,7 @@ export const _sendUltraMessage = async (data: ultraMsgSendData) => {
     var _data = qs.stringify({
       token: data.token,
       to: data.to,
-      body: data.body,
+      body: data.body || "",
     });
     var config: AxiosRequestConfig = {
       method: "post",
@@ -79,4 +79,19 @@ export const _getPrintMedia = async (
     await sleep(i);
   }
   throw new Error("Failed to fetch media after retries.");
+};
+
+export const replaceVariables = (
+  str: string,
+  replacements: Array<{ key: string; value: string | number }>
+): string => {
+  let modifiedStr = str;
+
+  for (let item of replacements) {
+    // Create a regular expression for global replacement
+    const regex = new RegExp(`{${item.key}}`, "g");
+    modifiedStr = modifiedStr.replace(regex, String(item.value)); // Convert value to string in case it's a number
+  }
+
+  return modifiedStr;
 };

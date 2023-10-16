@@ -10,3 +10,10 @@ export declare const _getPrintMedia: (
   pdfId: string,
   repzo: Repzo
 ) => Promise<Service.QuickConvertToPdf.QuickConvertToPdfSchema>;
+export declare const replaceVariables: (
+  str: string,
+  replacements: Array<{
+    key: string;
+    value: string | number;
+  }>
+) => string;
