@@ -73,6 +73,31 @@ export const join = async (commandEvent: CommandEvent) => {
             commandEvent?.app?.formData?.salesorders?.message
               .messageSalesorderHook || false,
         },
+        //message payment
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "message_payment",
+          event: "payment.create",
+          join:
+            commandEvent?.app?.formData?.payments.messagePaymentHook || false,
+        },
+        //message refund
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "message_refund",
+          event: "refund.create",
+          join: commandEvent?.app?.formData?.refunds.messageRefundHook || false,
+        },
+        //message visit
+        {
+          app: "repzo-ultramsg",
+          app_id: commandEvent?.app?._id,
+          action: "message_visit",
+          event: "visit.end",
+          join: commandEvent?.app?.formData?.visits.messageVisitHook || false,
+        },
       ],
     };
 

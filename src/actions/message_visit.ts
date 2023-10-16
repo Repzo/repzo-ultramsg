@@ -1,14 +1,14 @@
 import { Config, EVENT, ultraMsgSendData } from "../types";
 import Repzo from "repzo";
-import { _sendUltraMessage, replaceVariables } from "../util.js";
+import { _sendUltraMessage } from "../util.js";
 import { Service } from "repzo/src/types";
 import { v4 as uuid } from "uuid";
 
-export const message_salesorder = async (event: EVENT, options: Config) => {
+export const message_visit = async (event: EVENT, options: Config) => {
   const repzo = new Repzo(options.data?.repzoApiKey, { env: options.env });
   const action_sync_id: string = event?.headers?.action_sync_id || uuid();
   const actionLog = new Repzo.ActionLogs(repzo, action_sync_id);
-  let body: Service.Proforma.ProformaSchema;
+  let body: Service.Visit.VisitSchema;
   let clientPhoneNumber: string = "";
   try {
     await actionLog.load(action_sync_id);
@@ -24,11 +24,9 @@ export const message_salesorder = async (event: EVENT, options: Config) => {
         .commit();
       throw new Error(`Repzo Ultramsg: Error event body was of a wrong type`);
     }
-    let client = await repzo.client.get(body.client_id);
+    let client = await repzo.client.get(body.client);
 
-    if (
-      options.data.salesorders.message.messageRecipientType === "Cell Phone"
-    ) {
+    if (options.data.visits.recipientType === "Cell Phone") {
       if (typeof client.cell_phone !== "string" || !client.cell_phone) {
         await actionLog
           .setStatus("fail")
@@ -40,7 +38,7 @@ export const message_salesorder = async (event: EVENT, options: Config) => {
       } else clientPhoneNumber = client.cell_phone;
     }
 
-    if (options.data.salesorders.message.messageRecipientType === "Phone") {
+    if (options.data.visits.recipientType === "Phone") {
       if (typeof client.phone !== "string" || !client.phone) {
         await actionLog
           .setStatus("fail")
@@ -55,21 +53,11 @@ export const message_salesorder = async (event: EVENT, options: Config) => {
       throw `Repzo Ultramsg: Error ${body?.client_name} does not have contact info`;
     }
     await actionLog
-      .addDetail(
-        `Repzo Ultramsg: Started Sending a Message - ${body?.serial_number?.formatted} `
-      )
+      .addDetail(`Repzo Ultramsg: Started Sending a Message -  `)
       .commit();
 
-    const inputString: string = options.data.salesorders.message.message;
-    const replacements = [
-      {
-        key: "totalAmount",
-        value: `${parseInt(body.total.toString()) / 1000}`,
-      },
-    ];
-    const msgBody = `${replaceVariables(inputString, replacements)} ${
-      body.currency
-    }`;
+    const msgBody: string = options.data.visits.message;
+
     const ultramsg_client_body: ultraMsgSendData = {
       to: clientPhoneNumber,
       body: msgBody,

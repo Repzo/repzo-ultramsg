@@ -1,6 +1,6 @@
 import { Config, EVENT, ultraMsgSendData } from "../types";
 import Repzo from "repzo";
-import { _sendUltraMessage } from "../util.js";
+import { _sendUltraMessage, replaceVariables } from "../util.js";
 import { Service } from "repzo/src/types";
 import { v4 as uuid } from "uuid";
 
@@ -56,9 +56,18 @@ export const message_invoice = async (event: EVENT, options: Config) => {
         `Repzo Ultramsg: Started Sending a Message - ${body?.serial_number?.formatted} `
       )
       .commit();
-    const msgBody = `${options.data.invoices.message.message} ${
-      parseInt(body.total.toString()) / 1000
-    } ${body.currency} `;
+
+    const inputString: string = options.data.invoices.message.message;
+    const replacements = [
+      {
+        key: "totalAmount",
+        value: `${parseInt(body.total.toString()) / 1000}`,
+      },
+    ];
+    const msgBody = `${replaceVariables(inputString, replacements)} ${
+      body.currency
+    }`;
+
     const ultramsg_client_body: ultraMsgSendData = {
       to: clientPhoneNumber,
       body: msgBody,
