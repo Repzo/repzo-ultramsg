@@ -18,10 +18,11 @@
   "directories": {},
   "engines": {},
   "scripts": {
-    "lint": "npx prettier --write .",
-    "build": "tsc && npm run lint",
+    "lint": "npx --yes prettier --write .",
+    "build": "tsc --skipLibCheck && npm run lint",
     "test": "mocha",
-    "mac": "tsc && node ./lib/test.js"
+    "mac": "npm run build && node ./lib/test/commands/***.js",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
