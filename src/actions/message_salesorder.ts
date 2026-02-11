@@ -66,10 +66,12 @@ export const message_salesorder = async (event: EVENT, options: Config) => {
         key: "totalAmount",
         value: `${parseInt(body.total.toString()) / 1000}`,
       },
+      {
+        key: "currency",
+        value: body.currency,
+      },
     ];
-    const msgBody = `${replaceVariables(inputString, replacements)} ${
-      body.currency
-    }`;
+    const msgBody = `${replaceVariables(inputString, replacements)}`;
     const ultramsg_client_body: ultraMsgSendData = {
       to: clientPhoneNumber,
       body: msgBody,
