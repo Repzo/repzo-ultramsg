@@ -1,10 +1,16 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { ultraMsgSendData, ultraMsgSendDoc } from "./types";
 import qs from "qs";
 import { Service } from "repzo/src/types";
 import Repzo from "repzo";
 const MAX_RETRIES = 25;
 
+type AxiosRequestConfig = {
+  method: string;
+  url: string;
+  headers: { [key: string]: string };
+  data: string;
+};
 export const _sendUltraMessage = async (data: ultraMsgSendData) => {
   try {
     var _data = qs.stringify({
@@ -67,7 +73,7 @@ export const sleep = (s: number) => {
 
 export const _getPrintMedia = async (
   pdfId: string,
-  repzo: Repzo
+  repzo: Repzo,
 ): Promise<Service.QuickConvertToPdf.QuickConvertToPdfSchema> => {
   for (let i = 0; i <= MAX_RETRIES; i = i + 5) {
     let pdf = await repzo.quickConvertToPdf.get(pdfId, {
@@ -83,7 +89,7 @@ export const _getPrintMedia = async (
 
 export const replaceVariables = (
   str: string,
-  replacements: Array<{ key: string; value: string | number }>
+  replacements: Array<{ key: string; value: string | number }>,
 ): string => {
   let modifiedStr = str;
 
